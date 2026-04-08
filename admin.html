@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin | IELTS Nguyễn Tuyển</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell single-column">
+      <header class="hero-card gradient-card">
+        <div>
+          <p class="eyebrow">Admin CMS</p>
+          <h1 class="brand-title">Quản trị nội dung khóa học</h1>
+          <p class="muted-copy">Chỉ admin mới được sửa timetable và link tài liệu.</p>
+        </div>
+        <div class="sidebar-actions">
+          <a class="ghost-button" href="./index.html">Về trang học viên</a>
+          <button id="logout-button" class="ghost-button">Đăng xuất</button>
+        </div>
+      </header>
+
+      <section class="overview-grid">
+        <article class="glass-card">
+          <p class="eyebrow">Trạng thái đăng nhập</p>
+          <h3 id="auth-status">Đang kiểm tra quyền...</h3>
+        </article>
+        <article class="glass-card">
+          <p class="eyebrow">Đồng bộ dữ liệu</p>
+          <h3 id="data-status">Đang tải dữ liệu online...</h3>
+        </article>
+      </section>
+
+      <section class="glass-card admin-grid">
+        <div class="week-picker"><label for="admin-week">Tuần</label><select id="admin-week"></select></div>
+        <div class="week-picker"><label for="admin-day">Ngày</label><select id="admin-day"></select></div>
+        <div class="week-picker"><label for="admin-column">Cột</label><select id="admin-column"></select></div>
+      </section>
+
+      <section class="glass-card">
+        <form id="admin-form" class="admin-form">
+          <label>Tiêu đề<input id="lesson-title-input" /></label>
+          <label>Link audio<input id="audio-url-input" type="url" /></label>
+          <label>Link bài học<input id="lesson-url-input" type="url" /></label>
+          <label>Mô tả ngắn<textarea id="description-input" rows="5"></textarea></label>
+          <label>Note cách học<textarea id="note-input" rows="4"></textarea></label>
+          <div class="admin-actions">
+            <button type="submit" class="primary-button">Lưu nội dung</button>
+            <button id="reset-course-data" type="button" class="ghost-button danger">Reset dữ liệu mặc định</button>
+          </div>
+          <p id="save-message" class="eyebrow"></p>
+        </form>
+      </section>
+    </div>
+    <script type="module" src="./src/admin-app.js"></script>
+  </body>
+  </html>

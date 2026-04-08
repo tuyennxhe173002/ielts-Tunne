@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IELTS Nguyễn Tuyển</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar glass-card">
+        <div>
+          <p class="eyebrow">IELTS Nguyễn Tuyển</p>
+          <h1 class="brand-title">Roadmap học cá nhân</h1>
+          <p class="muted-copy">Theo dõi tiến độ 48 tuần, mở từng bài học và học đúng nhịp.</p>
+        </div>
+        <nav class="sidebar-actions">
+          <a id="admin-link" class="ghost-button" href="./admin.html" hidden>Quản trị nội dung</a>
+          <button id="logout-button" class="ghost-button">Đăng xuất</button>
+        </nav>
+      </aside>
+
+      <main class="main-content">
+        <section class="hero-card gradient-card">
+          <div>
+            <p class="eyebrow">Dashboard cá nhân</p>
+            <h2 id="welcome-title">Xin chào</h2>
+            <p id="welcome-copy" class="muted-copy">Đang tải dữ liệu học tập...</p>
+          </div>
+          <div class="hero-stats">
+            <article class="stat-card">
+              <span>Tổng tiến độ</span>
+              <strong id="progress-value">0%</strong>
+            </article>
+            <article class="stat-card">
+              <span>Đã hoàn thành</span>
+              <strong id="progress-label">0 / 0</strong>
+            </article>
+          </div>
+        </section>
+
+        <section class="toolbar glass-card">
+          <button id="prev-week" class="ghost-button">← Tuần trước</button>
+          <div class="week-picker">
+            <label for="week-select">Chọn tuần</label>
+            <select id="week-select"></select>
+          </div>
+          <button id="next-week" class="ghost-button">Tuần sau →</button>
+        </section>
+
+        <section class="overview-grid">
+          <article class="glass-card week-panel">
+            <p class="eyebrow">Tuần hiện tại</p>
+            <h3 id="week-title">Tuần 1</h3>
+            <p id="week-objective" class="muted-copy"></p>
+          </article>
+          <article class="glass-card status-panel">
+            <p class="eyebrow">Cá nhân hóa</p>
+            <div class="badges">
+              <span id="role-badge" class="badge">student</span>
+              <span class="badge">48 tuần</span>
+              <span class="badge">Cloud sync</span>
+            </div>
+          </article>
+        </section>
+
+        <section class="table-wrap glass-card">
+          <table class="timetable-table">
+            <thead>
+              <tr>
+                <th>Tuần</th>
+                <th>Ngày</th>
+                <th>LISTENING</th>
+                <th>LISTENING NGHE CHÉP</th>
+                <th>SPEAKING</th>
+                <th>READING VOCABULARY</th>
+                <th>READING</th>
+                <th>WRITING TASK 1</th>
+                <th>WRITING TASK 2</th>
+                <th>TÀI LIỆU BỔ TRỢ</th>
+              </tr>
+            </thead>
+            <tbody id="timetable-body"></tbody>
+          </table>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="lesson-modal" class="lesson-modal">
+      <form method="dialog" class="modal-card glass-card">
+        <button class="close-button">✕</button>
+        <h3 id="modal-title"></h3>
+        <div id="modal-audio-link" class="modal-link-row"></div>
+        <div id="modal-lesson-link" class="modal-link-row"></div>
+        <label class="modal-label" for="modal-description">Mô tả ngắn</label>
+        <textarea id="modal-description" class="modal-textarea" rows="6" readonly></textarea>
+        <button id="toggle-complete" type="button" class="primary-button full-width"></button>
+      </form>
+    </dialog>
+
+    <script type="module" src="./src/app.js"></script>
+  </body>
+  </html>
