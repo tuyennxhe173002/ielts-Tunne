@@ -1,0 +1,406 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RoleCode {
+  admin
+  student
+}
+
+enum UserStatus {
+  pending
+  approved
+  rejected
+  suspended
+}
+
+enum ApprovalDecision {
+  approved
+  rejected
+}
+
+enum SessionStatus {
+  active
+  revoked
+  expired
+}
+
+enum CourseStatus {
+  draft
+  published
+  archived
+}
+
+enum CourseVisibility {
+  public
+  private
+}
+
+enum SectionStatus {
+  draft
+  published
+  archived
+}
+
+enum LessonStatus {
+  draft
+  published
+  archived
+}
+
+enum LessonType {
+  video
+  document
+  mixed
+  quiz
+}
+
+enum AssetType {
+  video
+  pdf
+  doc
+  slide
+  audio
+  image
+  link
+}
+
+enum AssetProvider {
+  bunny_stream
+  r2
+  s3
+  external
+}
+
+enum EnrollmentStatus {
+  active
+  paused
+  revoked
+  expired
+}
+
+enum ProgressStatus {
+  not_started
+  in_progress
+  completed
+}
+
+enum CommentStatus {
+  visible
+  hidden
+  deleted
+}
+
+model Role {
+  id          String   @id @default(uuid()) @db.Uuid
+  code        RoleCode @unique
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  users       User[]
+}
+
+model User {
+  id              String     @id @default(uuid()) @db.Uuid
+  email           String     @unique
+  emailVerifiedAt DateTime?
+  status          UserStatus @default(pending)
+  primaryRoleId   String     @db.Uuid
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  lastLoginAt     DateTime?
+  deletedAt       DateTime?
+
+  primaryRole        Role             @relation(fields: [primaryRoleId], references: [id])
+  profile            UserProfile?
+  credentials        UserCredential[]
+  devices            UserDevice[]
+  sessions           UserSession[]
+  approvals          AdminApproval[]  @relation("ApprovalTarget")
+  approvalActors     AdminApproval[]  @relation("ApprovalActor")
+  createdCourses     Course[]         @relation("CourseCreator")
+  updatedCourses     Course[]         @relation("CourseUpdater")
+  enrollments        Enrollment[]     @relation("EnrollmentStudent")
+  grantedEnrollments Enrollment[]     @relation("EnrollmentGrantedBy")
+  revokedEnrollments Enrollment[]     @relation("EnrollmentRevokedBy")
+  progress           LessonProgress[]
+  comments           LessonComment[]  @relation("CommentAuthor")
+  notifications      Notification[]
+  auditLogs          AuditLog[]       @relation("AuditActor")
+}
+
+model UserProfile {
+  userId            String   @id @db.Uuid
+  fullName          String
+  avatarUrl         String?
+  phone             String?
+  bio               String?
+  preferredLanguage String?  @default("vi")
+  timezone          String?  @default("Asia/Ho_Chi_Minh")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id])
+}
+
+model UserCredential {
+  id             String   @id @default(uuid()) @db.Uuid
+  userId         String   @db.Uuid
+  provider       String
+  providerUserId String?
+  passwordHash   String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id])
+
+  @@unique([provider, providerUserId])
+}
+
+model AdminApproval {
+  id              String           @id @default(uuid()) @db.Uuid
+  userId          String           @db.Uuid
+  decision        ApprovalDecision
+  note            String?
+  decidedByUserId String           @db.Uuid
+  decidedAt       DateTime         @default(now())
+
+  user      User @relation("ApprovalTarget", fields: [userId], references: [id])
+  decidedBy User @relation("ApprovalActor", fields: [decidedByUserId], references: [id])
+}
+
+model UserDevice {
+  id              String        @id @default(uuid()) @db.Uuid
+  userId          String        @db.Uuid
+  fingerprintHash String
+  deviceName      String?
+  userAgent       String?
+  ipAddress       String?
+  firstSeenAt     DateTime      @default(now())
+  lastSeenAt      DateTime      @default(now())
+  revokedAt       DateTime?
+  user            User          @relation(fields: [userId], references: [id])
+  sessions        UserSession[]
+
+  @@unique([userId, fingerprintHash])
+}
+
+model UserSession {
+  id                 String        @id @default(uuid()) @db.Uuid
+  userId             String        @db.Uuid
+  deviceId           String?       @db.Uuid
+  refreshTokenHash   String
+  accessTokenVersion Int           @default(1)
+  status             SessionStatus @default(active)
+  issuedAt           DateTime      @default(now())
+  expiresAt          DateTime
+  revokedAt          DateTime?
+  revokedReason      String?
+  lastActivityAt     DateTime?
+  user               User          @relation(fields: [userId], references: [id])
+  device             UserDevice?   @relation(fields: [deviceId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@index([userId, status])
+}
+
+model CourseCategory {
+  id          String   @id @default(uuid()) @db.Uuid
+  slug        String   @unique
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  courses     Course[]
+}
+
+model Course {
+  id               String           @id @default(uuid()) @db.Uuid
+  categoryId       String           @db.Uuid
+  slug             String           @unique
+  title            String
+  shortDescription String?
+  longDescription  String?
+  thumbnailUrl     String?
+  introVideoUrl    String?
+  status           CourseStatus     @default(draft)
+  visibility       CourseVisibility @default(public)
+  createdByUserId  String           @db.Uuid
+  updatedByUserId  String?          @db.Uuid
+  publishedAt      DateTime?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  category    CourseCategory  @relation(fields: [categoryId], references: [id])
+  createdBy   User            @relation("CourseCreator", fields: [createdByUserId], references: [id])
+  updatedBy   User?           @relation("CourseUpdater", fields: [updatedByUserId], references: [id])
+  sections    CourseSection[]
+  lessons     Lesson[]
+  enrollments Enrollment[]
+}
+
+model CourseSection {
+  id          String        @id @default(uuid()) @db.Uuid
+  courseId    String        @db.Uuid
+  title       String
+  description String?
+  position    Int
+  status      SectionStatus @default(draft)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  course  Course   @relation(fields: [courseId], references: [id])
+  lessons Lesson[]
+
+  @@unique([courseId, position])
+}
+
+model Lesson {
+  id              String       @id @default(uuid()) @db.Uuid
+  courseId        String       @db.Uuid
+  sectionId       String       @db.Uuid
+  slug            String
+  title           String
+  summary         String?
+  studyNote       String?
+  contentHtml     String?
+  lessonType      LessonType   @default(video)
+  status          LessonStatus @default(draft)
+  position        Int
+  durationSeconds Int?
+  isPreview       Boolean      @default(false)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  course   Course           @relation(fields: [courseId], references: [id])
+  section  CourseSection    @relation(fields: [sectionId], references: [id])
+  assets   LessonAsset[]
+  progress LessonProgress[]
+  comments LessonComment[]
+
+  @@unique([sectionId, slug])
+  @@unique([sectionId, position])
+  @@index([courseId])
+  @@index([sectionId])
+  @@index([status])
+}
+
+model LessonAsset {
+  id             String        @id @default(uuid()) @db.Uuid
+  lessonId       String        @db.Uuid
+  assetType      AssetType
+  provider       AssetProvider
+  storageKey     String?
+  externalUrl    String?
+  displayName    String
+  mimeType       String?
+  sizeBytes      BigInt?
+  metadataJson   Json?
+  position       Int           @default(1)
+  isDownloadable Boolean       @default(false)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  lesson Lesson @relation(fields: [lessonId], references: [id])
+}
+
+model Enrollment {
+  id              String           @id @default(uuid()) @db.Uuid
+  userId          String           @db.Uuid
+  courseId        String           @db.Uuid
+  status          EnrollmentStatus @default(active)
+  grantedByUserId String           @db.Uuid
+  grantedAt       DateTime         @default(now())
+  expiresAt       DateTime?
+  revokedAt       DateTime?
+  revokedByUserId String?          @db.Uuid
+  revokeReason    String?
+  createdAt       DateTime         @default(now())
+
+  user      User   @relation("EnrollmentStudent", fields: [userId], references: [id])
+  course    Course @relation(fields: [courseId], references: [id])
+  grantedBy User   @relation("EnrollmentGrantedBy", fields: [grantedByUserId], references: [id])
+  revokedBy User?  @relation("EnrollmentRevokedBy", fields: [revokedByUserId], references: [id])
+
+  @@unique([userId, courseId])
+  @@index([status])
+  @@index([courseId])
+}
+
+model LessonProgress {
+  id                  String         @id @default(uuid()) @db.Uuid
+  userId              String         @db.Uuid
+  lessonId            String         @db.Uuid
+  status              ProgressStatus @default(not_started)
+  progressPercent     Decimal        @default(0) @db.Decimal(5, 2)
+  lastPositionSeconds Int?
+  firstOpenedAt       DateTime?
+  lastOpenedAt        DateTime?
+  completedAt         DateTime?
+  updatedAt           DateTime       @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id])
+  lesson Lesson @relation(fields: [lessonId], references: [id])
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@index([lessonId])
+  @@index([userId, status])
+}
+
+model LessonComment {
+  id        String        @id @default(uuid()) @db.Uuid
+  lessonId  String        @db.Uuid
+  userId    String        @db.Uuid
+  parentId  String?       @db.Uuid
+  body      String
+  status    CommentStatus @default(visible)
+  editedAt  DateTime?
+  deletedAt DateTime?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  lesson  Lesson          @relation(fields: [lessonId], references: [id])
+  author  User            @relation("CommentAuthor", fields: [userId], references: [id])
+  parent  LessonComment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies LessonComment[] @relation("CommentReplies")
+
+  @@index([lessonId])
+  @@index([parentId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Notification {
+  id          String    @id @default(uuid()) @db.Uuid
+  userId      String    @db.Uuid
+  type        String
+  title       String
+  body        String?
+  payloadJson Json?
+  readAt      DateTime?
+  createdAt   DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model AuditLog {
+  id          String   @id @default(uuid()) @db.Uuid
+  actorUserId String?  @db.Uuid
+  actionType  String
+  entityType  String
+  entityId    String?  @db.Uuid
+  ipAddress   String?
+  userAgent   String?
+  payloadJson Json?
+  createdAt   DateTime @default(now())
+
+  actor User? @relation("AuditActor", fields: [actorUserId], references: [id])
+
+  @@index([actorUserId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
