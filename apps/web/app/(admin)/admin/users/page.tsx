@@ -1,4 +1,4 @@
-import { AdminUsersClient } from '@/src/features/admin/users/admin-users-client';
+import { AdminUsersClient } from '@/src/features/admin-users/admin-users-client';
 
 export default function AdminUsersPage() {
   return (

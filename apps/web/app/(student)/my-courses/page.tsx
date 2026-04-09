@@ -1,4 +1,4 @@
-import { MyCoursesClient } from '@/src/features/student/my-courses/my-courses-client';
+import { MyCoursesClient } from '@/src/features/course-learning/my-courses-client';
 
 export default function MyCoursesPage() {
   return (

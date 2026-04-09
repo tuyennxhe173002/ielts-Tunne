@@ -3,19 +3,20 @@
   "private": true,
   "version": "0.1.0",
   "workspaces": [
-    "apps/*"
+    "apps/*",
+    "packages/*"
   ],
   "scripts": {
     "dev:web": "npm --workspace apps/web run dev",
     "dev:api": "npm --workspace apps/api run start:dev",
-    "build:web": "npm --workspace apps/web run build",
+    "build:web": "powershell -NoProfile -Command \"if (Test-Path 'apps/web/.next') { Remove-Item -Recurse -Force 'apps/web/.next' }\" && npm --workspace apps/web run build",
     "build:api": "npm --workspace apps/api run build",
     "lint:web": "npm --workspace apps/web run lint",
     "prisma:generate": "prisma generate",
     "prisma:format": "prisma format",
     "prisma:validate": "prisma validate",
     "prisma:seed": "node --env-file=.env prisma/seed.mjs",
-    "test:e2e": "npx playwright test"
+    "test:e2e": "npm run build:web && npx playwright test"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.1",

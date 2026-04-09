@@ -8,7 +8,7 @@ export default defineConfig({
     headless: true,
   },
   webServer: {
-    command: 'npm --workspace apps/web run start -- --hostname 127.0.0.1 --port 3100',
+    command: 'cmd /c "cd apps/web && npx next start --hostname 127.0.0.1 --port 3100"',
     url: 'http://127.0.0.1:3100',
     reuseExistingServer: true,
     timeout: 120000,

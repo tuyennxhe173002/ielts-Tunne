@@ -1,4 +1,4 @@
-import { AdminCommentsClient } from '@/src/features/admin/comments/admin-comments-client';
+import { AdminCommentsClient } from '@/src/features/admin-comments/admin-comments-client';
 
 export default function AdminCommentsPage() {
   return (

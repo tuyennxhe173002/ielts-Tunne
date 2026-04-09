@@ -1,4 +1,4 @@
-import { AdminCourseEditorClient } from '@/src/features/admin/courses/admin-course-editor-client';
+import { AdminCourseEditorClient } from '@/src/features/admin-courses/admin-course-editor-client';
 
 export default async function AdminCourseEditorPage({ params }: { params: Promise<{ courseId: string }> }) {
   const { courseId } = await params;

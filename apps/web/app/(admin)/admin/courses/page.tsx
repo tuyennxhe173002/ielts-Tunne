@@ -1,4 +1,4 @@
-import { AdminCoursesClient } from '@/src/features/admin/courses/admin-courses-client';
+import { AdminCoursesClient } from '@/src/features/admin-courses/admin-courses-client';
 
 export default function AdminCoursesPage() {
   return (
