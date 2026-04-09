@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { authedApiRequest } from '@/src/lib/authed-api';
-import { clearTokens } from '@/src/lib/auth-store';
+import { authedApiRequest } from '@/src/lib/api/authed-client';
+import { clearTokens } from '@/src/lib/auth/token-store';
 
 type EnrollmentCourse = {
   id: string;

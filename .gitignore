@@ -66,6 +66,7 @@ screenshots/*
 docs/screenshots/*
 logs.txt
 test-ck
+test-results/
 __pycache__
 
 # CK meta commands

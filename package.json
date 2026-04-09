@@ -14,9 +14,11 @@
     "prisma:generate": "prisma generate",
     "prisma:format": "prisma format",
     "prisma:validate": "prisma validate",
-    "prisma:seed": "node --env-file=.env prisma/seed.mjs"
+    "prisma:seed": "node --env-file=.env prisma/seed.mjs",
+    "test:e2e": "npx playwright test"
   },
   "devDependencies": {
+    "@playwright/test": "^1.49.1",
     "prisma": "^6.6.0",
     "typescript": "^5.6.3"
   }

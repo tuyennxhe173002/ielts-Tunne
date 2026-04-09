@@ -2,8 +2,8 @@
 
 import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { apiRequest } from '@/src/lib/api-client';
-import { saveAccessToken } from '@/src/lib/auth-store';
+import { apiRequest } from '@/src/lib/api/client';
+import { saveAccessToken, saveCsrfToken } from '@/src/lib/auth/token-store';
 
 export function LoginForm() {
   const router = useRouter();
@@ -15,11 +15,13 @@ export function LoginForm() {
     event.preventDefault();
     setMessage('Đang đăng nhập...');
     try {
-      const data = await apiRequest<{ accessToken: string; user: { status: string } }>('/auth/login', {
+      const data = await apiRequest<{ accessToken: string; csrfToken?: string; user: { status: string; email?: string } }>('/auth/login', {
         method: 'POST',
         body: JSON.stringify({ email, password, deviceFingerprint: 'web-browser', deviceName: navigator.userAgent }),
       });
       saveAccessToken(data.accessToken);
+      if (data.csrfToken) saveCsrfToken(data.csrfToken);
+      if (data.user.email) sessionStorage.setItem('current_user_email', data.user.email);
       router.push(data.user.status === 'approved' ? '/dashboard' : '/pending-approval');
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Đăng nhập thất bại');

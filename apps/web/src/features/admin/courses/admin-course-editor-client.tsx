@@ -1,7 +1,7 @@
 'use client';
 
 import { FormEvent, useEffect, useState } from 'react';
-import { authedApiRequest } from '@/src/lib/authed-api';
+import { authedApiRequest } from '@/src/lib/api/authed-client';
 
 type Asset = { id: string; displayName: string; assetType: string; provider: string; externalUrl?: string | null; storageKey?: string | null; metadataJson?: Record<string, unknown> | null };
 type Lesson = { id: string; title: string; slug: string; summary?: string | null; status: string; assets: Asset[] };

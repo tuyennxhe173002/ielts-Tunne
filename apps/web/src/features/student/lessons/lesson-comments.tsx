@@ -1,7 +1,7 @@
 'use client';
 
 import { FormEvent, useEffect, useState } from 'react';
-import { authedApiRequest } from '@/src/lib/authed-api';
+import { authedApiRequest } from '@/src/lib/api/authed-client';
 
 type Author = {
   email: string;
@@ -29,6 +29,9 @@ export function LessonComments({ lessonId }: { lessonId: string }) {
   const [body, setBody] = useState('');
   const [message, setMessage] = useState('Đang tải comments...');
   const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
+  const [editDrafts, setEditDrafts] = useState<Record<string, string>>({});
+
+  const currentUserEmail = typeof window !== 'undefined' ? sessionStorage.getItem('current_user_email') || '' : '';
 
   useEffect(() => {
     loadComments();
@@ -72,6 +75,29 @@ export function LessonComments({ lessonId }: { lessonId: string }) {
     await loadComments();
   }
 
+  async function saveEdit(commentId: string) {
+    const nextBody = editDrafts[commentId]?.trim();
+    if (!nextBody) return;
+    await authedApiRequest(`/comments/${commentId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ body: nextBody }),
+    }).catch((error) => {
+      setMessage(error instanceof Error ? error.message : 'Không sửa được comment');
+      return null;
+    });
+    await loadComments();
+  }
+
+  async function deleteComment(commentId: string) {
+    await authedApiRequest(`/comments/${commentId}`, {
+      method: 'DELETE',
+    }).catch((error) => {
+      setMessage(error instanceof Error ? error.message : 'Không xóa được comment');
+      return null;
+    });
+    await loadComments();
+  }
+
   return (
     <article className="glass p-6">
       <p className="text-sm uppercase tracking-[0.2em] text-blue-300">Comments & Q&A</p>
@@ -87,6 +113,13 @@ export function LessonComments({ lessonId }: { lessonId: string }) {
           <div key={comment.id} className="rounded-2xl border border-white/10 bg-slate-900/40 p-4">
             <p className="font-medium text-white">{comment.author.profile?.fullName || comment.author.email}</p>
             <p className="mt-2 whitespace-pre-wrap text-slate-200">{comment.body}</p>
+            {comment.author.email === currentUserEmail ? (
+              <div className="mt-3 flex flex-wrap gap-3">
+                <input className="flex-1 rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-3" value={editDrafts[comment.id] ?? comment.body} onChange={(e) => setEditDrafts((state) => ({ ...state, [comment.id]: e.target.value }))} />
+                <button className="rounded-2xl border border-white/10 px-4 py-3 text-slate-200" onClick={() => saveEdit(comment.id)} type="button">Sửa</button>
+                <button className="rounded-2xl border border-rose-500/40 px-4 py-3 text-rose-300" onClick={() => deleteComment(comment.id)} type="button">Xóa</button>
+              </div>
+            ) : null}
 
             <div className="mt-4 space-y-3 pl-4">
               {comment.replies.map((reply) => (

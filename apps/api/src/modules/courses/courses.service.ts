@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { EnrollmentsService } from '../enrollments/enrollments.service';
@@ -22,7 +22,20 @@ export class CoursesService {
   async detailPublic(slug: string) {
     return this.prisma.course.findFirst({
       where: { slug, status: 'published', visibility: 'public' },
-      include: { category: true, sections: { where: { status: 'published' }, orderBy: { position: 'asc' } } },
+      include: {
+        category: true,
+        sections: {
+          where: { status: 'published' },
+          orderBy: { position: 'asc' },
+          include: {
+            lessons: {
+              where: { status: 'published', isPreview: true },
+              orderBy: { position: 'asc' },
+              select: { id: true, slug: true, title: true, summary: true },
+            },
+          },
+        },
+      },
     });
   }
 
@@ -112,5 +125,26 @@ export class CoursesService {
     if (!course) throw new NotFoundException('Course not found');
     await this.enrollmentsService.assertEnrollment(userId, course.id);
     return course;
+  }
+
+  async getDashboard(userId: string) {
+    const [enrollments, progress] = await Promise.all([
+      this.enrollmentsService.listStudentCourses(userId),
+      this.prisma.lessonProgress.findMany({
+        where: { userId },
+        orderBy: { updatedAt: 'desc' },
+        include: { lesson: { select: { id: true, title: true, course: { select: { slug: true, title: true } } } } },
+      }),
+    ]);
+
+    const continueLearning = progress.find((item) => item.status !== 'completed') || progress[0] || null;
+
+    return {
+      enrolledCourses: enrollments,
+      totalCourses: enrollments.length,
+      completedLessons: progress.filter((item) => item.status === 'completed').length,
+      continueLearning,
+      recentProgress: progress.slice(0, 5),
+    };
   }
 }

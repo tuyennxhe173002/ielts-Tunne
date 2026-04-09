@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
 import { EnrollmentsService } from '../enrollments/enrollments.service';
@@ -55,12 +55,19 @@ export class LessonsService {
     const lesson = await this.prisma.lesson.findUnique({
       where: { id: lessonId },
       include: {
-        course: { select: { id: true, slug: true, title: true } },
-        section: { select: { id: true, title: true } },
+        course: { select: { id: true, slug: true, title: true, status: true, visibility: true } },
+        section: { select: { id: true, title: true, status: true } },
         assets: { orderBy: { position: 'asc' } },
       },
     });
-    if (!lesson || lesson.status !== 'published') throw new NotFoundException('Lesson not found');
+    if (
+      !lesson ||
+      lesson.status !== 'published' ||
+      lesson.course.status !== 'published' ||
+      lesson.section.status !== 'published'
+    ) {
+      throw new NotFoundException('Lesson not found');
+    }
     await this.enrollmentsService.assertEnrollment(userId, lesson.courseId);
     return lesson;
   }

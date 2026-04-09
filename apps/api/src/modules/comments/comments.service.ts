@@ -1,5 +1,5 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 import { LessonsService } from '../lessons/lessons.service';
 
 @Injectable()
@@ -47,6 +47,7 @@ export class CommentsService {
     const comment = await this.prisma.lessonComment.findUnique({ where: { id: commentId } });
     if (!comment || comment.deletedAt) throw new NotFoundException('Comment not found');
     if (comment.userId !== userId) throw new ForbiddenException('Cannot edit another user comment');
+    await this.lessonsService.detailForStudent(comment.lessonId, userId);
     return this.prisma.lessonComment.update({ where: { id: commentId }, data: { body, editedAt: new Date() } });
   }
 
@@ -54,6 +55,7 @@ export class CommentsService {
     const comment = await this.prisma.lessonComment.findUnique({ where: { id: commentId } });
     if (!comment || comment.deletedAt) throw new NotFoundException('Comment not found');
     if (comment.userId !== userId) throw new ForbiddenException('Cannot delete another user comment');
+    await this.lessonsService.detailForStudent(comment.lessonId, userId);
     return this.prisma.lessonComment.update({ where: { id: commentId }, data: { status: 'deleted', deletedAt: new Date() } });
   }
 

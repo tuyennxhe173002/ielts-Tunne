@@ -1,5 +1,5 @@
-import { apiRequest } from './api-client';
-import { clearTokens, getAccessToken, saveAccessToken } from './auth-store';
+import { apiRequest } from './client';
+import { clearTokens, getAccessToken, saveAccessToken, saveCsrfToken } from '../auth/token-store';
 
 export async function authedApiRequest<T>(path: string, init?: RequestInit) {
   const execute = (token: string) => apiRequest<T>(path, {
@@ -29,10 +29,11 @@ export async function authedApiRequest<T>(path: string, init?: RequestInit) {
 }
 
 async function refreshAccessToken() {
-  const data = await apiRequest<{ accessToken: string }>('/auth/refresh', {
+  const data = await apiRequest<{ accessToken: string; csrfToken?: string }>('/auth/refresh', {
     method: 'POST',
     body: JSON.stringify({}),
   });
   saveAccessToken(data.accessToken);
+  if (data.csrfToken) saveCsrfToken(data.csrfToken);
   return data.accessToken;
 }

@@ -1,11 +1,12 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Redirect, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import type { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { AdminGuard } from '../auth/admin.guard';
-import { ApprovedUserGuard } from '../auth/approved-user.guard';
-import { AuthGuard } from '../auth/auth.guard';
-import { CurrentUser } from '../auth/current-user.decorator';
-import { AuthUser } from '../auth/types/auth-user.type';
+import { AdminGuard } from '../../common/guards/admin.guard';
+import { ApprovedUserGuard } from '../../common/guards/approved-user.guard';
+import { AuthGuard } from '../../common/guards/auth.guard';
+import { CsrfGuard } from '../../common/guards/csrf.guard';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { AuthUser } from '../../common/types/auth-user.type';
 import { CreateAssetDto } from './dto/create-asset.dto';
 import { UpdateAssetDto } from './dto/update-asset.dto';
 import { AssetsService } from './assets.service';
@@ -16,26 +17,31 @@ export class AdminAssetsController {
   constructor(private readonly assetsService: AssetsService) {}
 
   @Post('lessons/:lessonId/assets')
+  @UseGuards(CsrfGuard)
   create(@Param('lessonId') lessonId: string, @Body() dto: CreateAssetDto) {
     return this.assetsService.create(lessonId, dto).then((data) => ({ data }));
   }
 
   @Patch('assets/:assetId')
+  @UseGuards(CsrfGuard)
   update(@Param('assetId') assetId: string, @Body() dto: UpdateAssetDto) {
     return this.assetsService.update(assetId, dto).then((data) => ({ data }));
   }
 
   @Delete('assets/:assetId')
+  @UseGuards(CsrfGuard)
   remove(@Param('assetId') assetId: string) {
     return this.assetsService.remove(assetId).then((data) => ({ data }));
   }
 
   @Post('lessons/:lessonId/bunny-video')
+  @UseGuards(CsrfGuard)
   createBunnyVideo(@Param('lessonId') lessonId: string) {
     return this.assetsService.createBunnyVideoAsset(lessonId).then((data) => ({ data }));
   }
 
   @Post('assets/:assetId/bunny-upload')
+  @UseGuards(CsrfGuard)
   @UseInterceptors(FileInterceptor('file'))
   uploadBunnyVideo(@Param('assetId') assetId: string, @UploadedFile() file: { buffer: Buffer; originalname: string; size: number }) {
     return this.assetsService.uploadBunnyVideo(assetId, file).then((data) => ({ data }));

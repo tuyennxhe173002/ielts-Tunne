@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { FormEvent, useEffect, useState } from 'react';
-import { authedApiRequest } from '@/src/lib/authed-api';
+import { authedApiRequest } from '@/src/lib/api/authed-client';
 
 type Course = {
   id: string;

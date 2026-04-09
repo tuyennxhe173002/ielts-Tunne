@@ -1,0 +1,45 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "API Dev Server",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev:api",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Web Dev Server",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev:web",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Open LMS In Browser",
+      "type": "pwa-chrome",
+      "request": "launch",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}/apps/web"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "LMS Full Stack",
+      "configurations": [
+        "API Dev Server",
+        "Web Dev Server"
+      ],
+      "stopAll": true
+    },
+    {
+      "name": "LMS Full Stack + Browser",
+      "configurations": [
+        "API Dev Server",
+        "Web Dev Server",
+        "Open LMS In Browser"
+      ],
+      "stopAll": true
+    }
+  ]
+}

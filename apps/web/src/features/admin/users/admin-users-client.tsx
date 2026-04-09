@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { authedApiRequest } from '@/src/lib/authed-api';
+import { authedApiRequest } from '@/src/lib/api/authed-client';
 
 type Course = { id: string; title: string; slug: string };
-type Enrollment = { id: string; course: Course; status: string };
+type Enrollment = { id: string; course: Course; status: string; expiresAt?: string | null };
 type User = {
   id: string;
   email: string;
@@ -73,6 +73,15 @@ export function AdminUsersClient() {
     setUsers(allUsers);
   }
 
+  async function updateEnrollment(enrollmentId: string, payload: { status?: string; expiresAt?: string | null }) {
+    await authedApiRequest(`/admin/enrollments/${enrollmentId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    }).then(() => setMessage('Đã cập nhật enrollment.')).catch((error) => setMessage(error instanceof Error ? error.message : 'Cập nhật enrollment thất bại'));
+    const allUsers = await authedApiRequest<User[]>('/admin/users');
+    setUsers(allUsers);
+  }
+
   return (
     <section className="space-y-6">
       <article className="glass p-6">
@@ -123,7 +132,16 @@ export function AdminUsersClient() {
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
                 {user.enrollments.length === 0 ? <span className="text-sm text-slate-500">Chưa được gán khóa học</span> : user.enrollments.map((enrollment) => (
-                  <span key={enrollment.id} className="rounded-full border border-white/10 px-3 py-1 text-sm text-slate-300">{enrollment.course.title}</span>
+                  <div key={enrollment.id} className="rounded-2xl border border-white/10 px-3 py-2 text-sm text-slate-300">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <span>{enrollment.course.title}</span>
+                      <span className="text-xs text-blue-300">{enrollment.status}</span>
+                      <button className="rounded-xl border border-white/10 px-2 py-1 text-xs" onClick={() => updateEnrollment(enrollment.id, { status: 'paused' })}>Pause</button>
+                      <button className="rounded-xl border border-white/10 px-2 py-1 text-xs" onClick={() => updateEnrollment(enrollment.id, { status: 'active' })}>Activate</button>
+                      <button className="rounded-xl border border-white/10 px-2 py-1 text-xs" onClick={() => updateEnrollment(enrollment.id, { status: 'revoked' })}>Revoke</button>
+                      <button className="rounded-xl border border-white/10 px-2 py-1 text-xs" onClick={() => updateEnrollment(enrollment.id, { expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() })}>+30d</button>
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>

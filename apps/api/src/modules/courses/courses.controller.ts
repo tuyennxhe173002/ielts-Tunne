@@ -1,8 +1,8 @@
 import { Controller, Get, Param, UseGuards } from '@nestjs/common';
-import { ApprovedUserGuard } from '../auth/approved-user.guard';
-import { AuthGuard } from '../auth/auth.guard';
-import { CurrentUser } from '../auth/current-user.decorator';
-import { AuthUser } from '../auth/types/auth-user.type';
+import { ApprovedUserGuard } from '../../common/guards/approved-user.guard';
+import { AuthGuard } from '../../common/guards/auth.guard';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { AuthUser } from '../../common/types/auth-user.type';
 import { CoursesService } from './courses.service';
 
 @Controller('courses')
@@ -28,5 +28,16 @@ export class StudentCoursesController {
   @Get(':slug')
   detail(@Param('slug') slug: string, @CurrentUser() user: AuthUser) {
     return this.coursesService.getStudentCourse(slug, user.id).then((data) => ({ data }));
+  }
+}
+
+@Controller('me/dashboard')
+@UseGuards(AuthGuard, ApprovedUserGuard)
+export class StudentDashboardController {
+  constructor(private readonly coursesService: CoursesService) {}
+
+  @Get()
+  detail(@CurrentUser() user: AuthUser) {
+    return this.coursesService.getDashboard(user.id).then((data) => ({ data }));
   }
 }

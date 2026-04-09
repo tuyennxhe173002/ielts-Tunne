@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { Prisma } from '@prisma/client';
-import { createHmac, timingSafeEqual } from 'crypto';
-import { PrismaService } from '../../prisma/prisma.service';
+import { createHash, createHmac, timingSafeEqual } from 'crypto';
+import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 import { LessonsService } from '../lessons/lessons.service';
 import { CreateAssetDto } from './dto/create-asset.dto';
 import { UpdateAssetDto } from './dto/update-asset.dto';
@@ -222,8 +222,16 @@ export class AssetsService {
     const meta = (asset.metadataJson || {}) as Record<string, unknown>;
     const videoId = typeof meta.videoId === 'string' ? meta.videoId : '';
     const libraryId = typeof meta.libraryId === 'string' ? meta.libraryId : process.env.BUNNY_STREAM_LIBRARY_ID || '';
-    const embedHost = process.env.BUNNY_STREAM_EMBED_HOST || 'iframe.mediadelivery.net';
-    return videoId && libraryId ? `https://${embedHost}/${libraryId}/${videoId}` : '';
+    const embedHost = process.env.BUNNY_STREAM_EMBED_HOST || 'player.mediadelivery.net';
+    if (!videoId || !libraryId) return '';
+
+    const expires = Math.floor(Date.now() / 1000) + 300;
+    const signingKey = process.env.BUNNY_STREAM_SIGNING_KEY || '';
+    const baseUrl = `https://${embedHost}/embed/${libraryId}/${videoId}`;
+    if (!signingKey || signingKey === 'replace-me') return baseUrl;
+
+    const token = createHash('sha256').update(`${signingKey}${videoId}${expires}`).digest('hex');
+    return `${baseUrl}?token=${token}&expires=${expires}`;
   }
 
   private validateBunnyWebhook(rawBody: Buffer, signature: string, version: string, algorithm: string, secret: string) {

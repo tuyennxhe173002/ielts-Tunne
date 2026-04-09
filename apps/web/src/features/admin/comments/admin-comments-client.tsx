@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { authedApiRequest } from '@/src/lib/authed-api';
+import { authedApiRequest } from '@/src/lib/api/authed-client';
 
 type CommentItem = {
   id: string;

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { authedApiRequest } from '@/src/lib/authed-api';
+import { authedApiRequest } from '@/src/lib/api/authed-client';
 
 type Lesson = { id: string; slug: string; title: string; summary?: string | null; isPreview: boolean };
 type Section = { id: string; title: string; description?: string | null; lessons: Lesson[] };

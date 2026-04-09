@@ -1,7 +1,7 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
-import { apiRequest } from '@/src/lib/api-client';
+import { apiRequest } from '@/src/lib/api/client';
 
 export function RegisterForm() {
   const [fullName, setFullName] = useState('');
