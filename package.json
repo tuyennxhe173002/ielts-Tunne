@@ -7,7 +7,7 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "concurrently -n api,web -c cyan,magenta \"npm run dev:api\" \"npm run dev:web\"",
+    "dev": "npm exec concurrently -- -n api,web -c cyan,magenta \"npm run dev:api\" \"npm run dev:web\"",
     "dev:web": "npm --workspace apps/web run dev",
     "dev:api": "npm --workspace apps/api run start:dev",
     "build:web": "powershell -NoProfile -Command \"if (Test-Path 'apps/web/.next') { Remove-Item -Recurse -Force 'apps/web/.next' }\" && npm --workspace apps/web run build",
