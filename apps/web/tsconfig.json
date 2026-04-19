@@ -21,12 +21,14 @@
       }
     ],
     "allowJs": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "module": "esnext",
+    "moduleResolution": "bundler"
   },
   "include": [
+    "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "next-env.d.ts",
     ".next/types/**/*.ts"
   ],
   "exclude": [

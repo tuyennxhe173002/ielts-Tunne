@@ -49,7 +49,7 @@ describe('Core flows', () => {
       const prisma = {
         enrollment: { findFirst: jest.fn().mockResolvedValue(null) },
       } as any;
-      const service = new EnrollmentsService(prisma);
+      const service = new EnrollmentsService(prisma, { create: jest.fn() } as any);
       await expect(service.assertEnrollment('u1', 'c1')).rejects.toBeInstanceOf(NotFoundException);
     });
   });

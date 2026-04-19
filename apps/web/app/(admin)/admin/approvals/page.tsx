@@ -1,3 +1,5 @@
+import { AdminApprovalsClient } from '@/src/features/admin-users/admin-approvals-client';
+
 export default function AdminApprovalsPage() {
-  return <main className="shell"><div className="glass p-8">Approvals placeholder</div></main>;
+  return <AdminApprovalsClient />;
 }

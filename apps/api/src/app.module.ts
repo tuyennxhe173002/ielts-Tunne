@@ -6,6 +6,7 @@ import { AuthModule } from './modules/iam/auth/auth.module';
 import { UsersModule } from './modules/iam/users/users.module';
 import { RolesModule } from './modules/iam/roles/roles.module';
 import { SessionsModule } from './modules/iam/sessions/sessions.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { ApprovalsModule } from './modules/operations/approvals/approvals.module';
 import { NotificationsModule } from './modules/operations/notifications/notifications.module';
 import { AuditLogsModule } from './modules/operations/audit-logs/audit-logs.module';
@@ -25,6 +26,7 @@ import { DevicesModule } from './modules/devices/devices.module';
     PrismaModule,
     HealthModule,
     AuthModule,
+    AnalyticsModule,
     UsersModule,
     RolesModule,
     ApprovalsModule,

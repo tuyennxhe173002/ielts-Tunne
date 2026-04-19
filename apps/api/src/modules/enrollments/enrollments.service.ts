@@ -2,10 +2,14 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 import { CreateEnrollmentDto } from './dto/create-enrollment.dto';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class EnrollmentsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationsService: NotificationsService,
+  ) {}
 
   list(userId?: string) {
     return this.prisma.enrollment.findMany({
@@ -24,7 +28,7 @@ export class EnrollmentsService {
     const course = await this.prisma.course.findUnique({ where: { id: dto.courseId } });
     if (!user) throw new NotFoundException('User not found');
     if (!course) throw new NotFoundException('Course not found');
-    return this.prisma.enrollment.create({
+    const enrollment = await this.prisma.enrollment.create({
       data: {
         userId: dto.userId,
         courseId: dto.courseId,
@@ -38,6 +42,13 @@ export class EnrollmentsService {
       }
       throw error;
     });
+    await this.notificationsService.create({
+      userId: dto.userId,
+      type: 'course_assigned',
+      title: 'Bạn đã được cấp khóa học',
+      body: `Khóa học ${course.title} đã được cấp cho tài khoản của bạn.`,
+    });
+    return enrollment;
   }
 
   async revoke(enrollmentId: string, adminUserId: string, reason?: string) {

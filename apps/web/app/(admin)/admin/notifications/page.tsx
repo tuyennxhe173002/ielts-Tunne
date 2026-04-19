@@ -1,3 +1,5 @@
+import { AdminNotificationsClient } from '@/src/features/admin-comments/admin-notifications-client';
+
 export default function AdminNotificationsPage() {
-  return <main className="shell"><div className="glass p-8">Notifications placeholder</div></main>;
+  return <AdminNotificationsClient />;
 }

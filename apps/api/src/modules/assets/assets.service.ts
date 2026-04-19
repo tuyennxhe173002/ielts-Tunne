@@ -47,6 +47,20 @@ export class AssetsService {
     return this.prisma.lessonAsset.delete({ where: { id: assetId } });
   }
 
+  listAdminMedia() {
+    return this.prisma.lessonAsset.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 200,
+      include: {
+        lesson: {
+          include: {
+            course: { select: { title: true, slug: true } },
+          },
+        },
+      },
+    });
+  }
+
   async issueAssetAccessUrl(lessonId: string, assetId: string, userId: string) {
     await this.lessonsService.detailForStudent(lessonId, userId);
     const asset = await this.prisma.lessonAsset.findFirst({ where: { id: assetId, lessonId } });

@@ -16,7 +16,7 @@
     "prisma:format": "prisma format",
     "prisma:validate": "prisma validate",
     "prisma:seed": "node --env-file=.env prisma/seed.mjs",
-    "test:e2e": "npm run build:web && npx playwright test"
+    "test:e2e": "npx playwright test"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.1",

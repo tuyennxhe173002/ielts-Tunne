@@ -40,6 +40,11 @@ export class AdminAssetsController {
     return this.assetsService.createBunnyVideoAsset(lessonId).then((data) => ({ data }));
   }
 
+  @Get('media')
+  listAdminMedia() {
+    return this.assetsService.listAdminMedia().then((data) => ({ data }));
+  }
+
   @Post('assets/:assetId/bunny-upload')
   @UseGuards(CsrfGuard)
   @UseInterceptors(FileInterceptor('file'))

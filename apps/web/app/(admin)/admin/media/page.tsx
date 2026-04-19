@@ -1,3 +1,5 @@
+import { AdminMediaClient } from '@/src/features/admin-comments/admin-media-client';
+
 export default function AdminMediaPage() {
-  return <main className="shell"><div className="glass p-8">Media placeholder</div></main>;
+  return <AdminMediaClient />;
 }

@@ -1,3 +1,5 @@
+import { AdminAuditLogsClient } from '@/src/features/admin-comments/admin-audit-logs-client';
+
 export default function AdminAuditLogsPage() {
-  return <main className="shell"><div className="glass p-8">Audit logs placeholder</div></main>;
+  return <AdminAuditLogsClient />;
 }
