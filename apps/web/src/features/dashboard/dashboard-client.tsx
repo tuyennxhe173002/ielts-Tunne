@@ -1,11 +1,24 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiRequest } from '@/src/lib/api/client';
 import { authedApiRequest } from '@/src/lib/api/authed-client';
 import { clearTokens, getAccessToken } from '@/src/lib/auth/token-store';
 import type { DashboardResponse, MeResponse } from '@/src/types/auth';
+import { AdminAnalyticsClient } from '@/src/features/admin-comments/admin-analytics-client';
+
+const adminActions = [
+  { href: '/admin', label: 'Tổng quan admin', desc: 'Xem analytics và các panel quản trị.' },
+  { href: '/admin/approvals', label: 'Duyệt học viên', desc: 'Approve hoặc reject tài khoản mới.' },
+  { href: '/admin/users', label: 'Quản lý users', desc: 'Gán khóa học, pause, revoke enrollments.' },
+  { href: '/admin/courses', label: 'Quản lý khóa học', desc: 'Tạo course, section, lesson, assets.' },
+  { href: '/admin/media', label: 'Quản lý media', desc: 'Xem và theo dõi video/file assets.' },
+  { href: '/admin/comments', label: 'Moderate comments', desc: 'Ẩn hoặc xóa bình luận.' },
+  { href: '/admin/notifications', label: 'Notifications', desc: 'Xem và tạo thông báo thủ công.' },
+  { href: '/admin/audit-logs', label: 'Audit logs', desc: 'Theo dõi lịch sử hành động hệ thống.' },
+];
 
 export function DashboardClient() {
   const router = useRouter();
@@ -70,6 +83,24 @@ export function DashboardClient() {
           <p className="text-slate-400">Chưa có bài học đang học dở.</p>
         )}
       </section>
+
+      {user.role === 'admin' ? (
+        <section className="space-y-6">
+          <section className="glass p-6">
+            <p className="text-sm uppercase tracking-[0.2em] text-blue-300">Admin quick actions</p>
+            <h2 className="mt-2 text-2xl font-semibold">Đi đến các chức năng quản trị</h2>
+            <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {adminActions.map((action) => (
+                <Link key={action.href} href={action.href} className="rounded-2xl border border-white/10 bg-slate-900/40 p-4 text-slate-200 transition hover:border-blue-400/40 hover:bg-slate-900/70">
+                  <p className="font-medium text-white">{action.label}</p>
+                  <p className="mt-2 text-sm text-slate-400">{action.desc}</p>
+                </Link>
+              ))}
+            </div>
+          </section>
+          <AdminAnalyticsClient />
+        </section>
+      ) : null}
 
       <section className="glass space-y-4 p-6">
         <h2 className="text-2xl font-semibold">Hoạt động gần đây</h2>
