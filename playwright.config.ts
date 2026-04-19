@@ -8,8 +8,7 @@ export default defineConfig({
     headless: true,
   },
   webServer: {
-    command: 'npx next start --hostname 127.0.0.1 --port 3100',
-    cwd: './apps/web',
+    command: 'cmd /c "cd /d apps/web && npx next start --hostname 127.0.0.1 --port 3100"',
     url: 'http://127.0.0.1:3100',
     reuseExistingServer: true,
     timeout: 120000,

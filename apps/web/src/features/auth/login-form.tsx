@@ -15,14 +15,18 @@ export function LoginForm() {
     event.preventDefault();
     setMessage('Đang đăng nhập...');
     try {
-      const data = await apiRequest<{ accessToken: string; csrfToken?: string; user: { status: string; email?: string } }>('/auth/login', {
+      const data = await apiRequest<{ accessToken: string; csrfToken?: string; user: { status: string; role?: string; email?: string } }>('/auth/login', {
         method: 'POST',
         body: JSON.stringify({ email, password, deviceFingerprint: 'web-browser', deviceName: navigator.userAgent }),
       });
       saveAccessToken(data.accessToken);
       if (data.csrfToken) saveCsrfToken(data.csrfToken);
       if (data.user.email) sessionStorage.setItem('current_user_email', data.user.email);
-      router.push(data.user.status === 'approved' ? '/dashboard' : '/pending-approval');
+      if (data.user.status !== 'approved') {
+        router.push('/pending-approval');
+        return;
+      }
+      router.push(data.user.role === 'admin' ? '/admin' : '/dashboard');
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Đăng nhập thất bại');
     }
