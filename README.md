@@ -327,6 +327,12 @@ This repository now includes Docker packaging so team members can run the projec
 docker compose up --build
 ```
 
+Or use the helper:
+
+```bash
+npm run docker:up
+```
+
 Services:
 - frontend: `http://localhost:3000`
 - backend: `http://localhost:4000`
@@ -352,10 +358,31 @@ Change these values in `docker-compose.yml` before sharing with team.
 docker compose down
 ```
 
+Or:
+
+```bash
+npm run docker:down
+```
+
 ### Reset database volume
 
 ```bash
 docker compose down -v
+```
+
+Or:
+
+```bash
+npm run docker:reset
+```
+
+### Useful Docker helper commands
+
+```bash
+npm run docker:logs
+npm run docker:ps
+npm run docker:rebuild
+npm run docker:config
 ```
 
 ### Notes
